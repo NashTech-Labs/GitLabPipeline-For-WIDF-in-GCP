@@ -1,0 +1,19 @@
+stages:
+  - auth 
+gcp_authentication:
+  stage: auth
+  image: google/cloud-sdk:latest
+  variables:   
+    WORKLOAD_IDENTITY_PROJECT_NUMBER: "<GCP_PROJECT_NUMBER>"
+    POOL: "<WORKLOAD_IDENTITY_POOL_ID>"
+    PROVIDER: "<WORKLOAD_IDENTITY_PROVIDER_ID>"
+    SERVICE_ACCOUNT: "<SERVICE_ACCOUNT_EMAIL>"
+    GOOGLE_APPLICATION_CREDENTIALS: "$CI_BUILDS_DIR/.workload_identity.wlconfig"
+  id_tokens:
+    WORKLOAD_IDENTITY_TOKEN:
+      aud: "https://iam.googleapis.com/projects/$WORKLOAD_IDENTITY_PROJECT_NUMBER/locations/global/workloadIdentityPools/$POOL/providers/$PROVIDER"
+
+  script:
+    - chmod +x auth.sh
+    - ./auth.sh
+    - gcloud auth login --cred-file=$GOOGLE_APPLICATION_CREDENTIALS
